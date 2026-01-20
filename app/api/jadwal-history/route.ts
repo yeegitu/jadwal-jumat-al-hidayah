@@ -1,8 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/mongodb";
+import type { Db, Collection } from "mongodb";
 
+/* ======================
+   TYPE
+====================== */
 type JadwalHistDoc = {
-  tanggal: string; // "YYYY-MM-DD"
+  tanggal: string; // YYYY-MM-DD
   imam: string;
   khotib: string;
   createdAt: Date;
@@ -19,6 +23,9 @@ type JadwalDoc = {
   updatedAt: string;
 };
 
+/* ======================
+   RESPONSE HELPERS
+====================== */
 function jsonBad(message: string, status = 400) {
   return NextResponse.json({ ok: false, message }, { status });
 }
@@ -26,18 +33,23 @@ function jsonOk(data?: any) {
   return NextResponse.json({ ok: true, data });
 }
 
+/* ======================
+   VALIDATION
+====================== */
 function isIsoDateYYYYMMDD(s: string) {
   return /^\d{4}-\d{2}-\d{2}$/.test(s);
 }
 
-// ✅ Validasi harus hari Jumat (0=Minggu ... 5=Jumat)
+// Jumat = 5
 function isFridayYYYYMMDD(iso: string) {
   if (!isIsoDateYYYYMMDD(iso)) return false;
   const [y, m, d] = iso.split("-").map(Number);
-  const dow = new Date(Date.UTC(y, m - 1, d)).getUTCDay();
-  return dow === 5;
+  return new Date(Date.UTC(y, m - 1, d)).getUTCDay() === 5;
 }
 
+/* ======================
+   DATE WINDOW
+====================== */
 function getYearRange(year: number) {
   return {
     start: `${year}-01-01`,
@@ -45,55 +57,41 @@ function getYearRange(year: number) {
   };
 }
 
-/**
- * Window simpan:
- * - Tahun berjalan (Y) + 2 tahun sebelumnya (Y-1, Y-2) tetap ada
- * - Tahun lebih lama (<= Y-3) dihapus
- */
 function getKeepWindow() {
   const currentYear = new Date().getFullYear();
-  const minKeepYear = currentYear - 2; // Y-2
-  const cutoff = `${minKeepYear}-01-01`; // tanggal < cutoff dihapus
+  const minKeepYear = currentYear - 2;
+  const cutoff = `${minKeepYear}-01-01`;
   return { currentYear, minKeepYear, cutoff };
 }
 
-async function cleanupOldYears(db: any) {
+/* ======================
+   MAINTENANCE
+====================== */
+async function cleanupOldYears(db: Db) {
   const { cutoff } = getKeepWindow();
-  await db.collection("jadwal_history").deleteMany({
+  await db.collection<JadwalHistDoc>("jadwal_history").deleteMany({
     tanggal: { $lt: cutoff },
   });
 }
 
 /**
- * Kalau tanggal yang dihapus adalah jadwal aktif (this/next),
- * reset jadwal aktif agar halaman user tidak menampilkan data lama.
+ * Jika jadwal aktif (this / next) sama dengan yang dihapus,
+ * reset agar user tidak melihat data lama
  */
-async function resetActiveJadwalIfMatches(db: any, tanggal: string) {
-  const col = db.collection<JadwalDoc>("jadwal");
+async function resetActiveJadwalIfMatches(db: Db, tanggal: string) {
+  const col: Collection<JadwalDoc> = db.collection("jadwal");
 
-  await col.updateOne(
-    { id: "this", tanggal },
-    {
-      $set: {
-        tanggal: "",
-        imam: "",
-        khotib: "",
-        updatedAt: new Date().toISOString(),
-      },
-    }
-  );
+  const reset = {
+    $set: {
+      tanggal: "",
+      imam: "",
+      khotib: "",
+      updatedAt: new Date().toISOString(),
+    },
+  };
 
-  await col.updateOne(
-    { id: "next", tanggal },
-    {
-      $set: {
-        tanggal: "",
-        imam: "",
-        khotib: "",
-        updatedAt: new Date().toISOString(),
-      },
-    }
-  );
+  await col.updateOne({ id: "this", tanggal }, reset);
+  await col.updateOne({ id: "next", tanggal }, reset);
 }
 
 /* ======================
@@ -107,8 +105,6 @@ export async function GET(req: NextRequest) {
   await cleanupOldYears(db);
 
   const { currentYear, minKeepYear } = getKeepWindow();
-
-  // hanya boleh akses: Y, Y-1, Y-2
   if (year < minKeepYear || year > currentYear) return jsonOk([]);
 
   const { start, end } = getYearRange(year);
@@ -134,7 +130,6 @@ export async function POST(req: NextRequest) {
 
   if (!tanggal || !isIsoDateYYYYMMDD(tanggal))
     return jsonBad("Tanggal tidak valid");
-
   if (!isFridayYYYYMMDD(tanggal))
     return jsonBad("Tanggal harus hari Jum'at");
 
@@ -171,7 +166,6 @@ export async function PATCH(req: NextRequest) {
   if (!tanggalOld || !tanggal) return jsonBad("Tanggal wajib");
   if (!isIsoDateYYYYMMDD(tanggalOld) || !isIsoDateYYYYMMDD(tanggal))
     return jsonBad("Tanggal tidak valid");
-
   if (!isFridayYYYYMMDD(tanggal))
     return jsonBad("Tanggal harus hari Jum'at");
 
@@ -218,8 +212,6 @@ export async function DELETE(req: NextRequest) {
 
   if (!res.deletedCount) return jsonBad("Data tidak ada", 404);
 
-  // sinkron: kalau yang dihapus adalah jadwal aktif, reset di collection jadwal
   await resetActiveJadwalIfMatches(db, tanggal);
-
   return jsonOk({ deleted: true });
 }

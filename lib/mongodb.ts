@@ -1,14 +1,15 @@
 import { MongoClient, Db } from "mongodb";
 
 const uri = process.env.MONGODB_URI;
-
 if (!uri) {
   throw new Error("MONGODB_URI belum diset di .env.local");
 }
 
-let client: MongoClient;
-let clientPromise: Promise<MongoClient>;
+const dbName = process.env.MONGODB_DB || "jadwal_jumat";
 
+/* ======================
+   GLOBAL CACHE (DEV)
+====================== */
 declare global {
   // eslint-disable-next-line no-var
   var _mongoClientPromise: Promise<MongoClient> | undefined;
@@ -16,9 +17,28 @@ declare global {
   var _mongoDbPromise: Promise<Db> | undefined;
 }
 
+let client: MongoClient;
+let clientPromise: Promise<MongoClient>;
+
+/* ======================
+   INIT CLIENT
+====================== */
+if (process.env.NODE_ENV === "development") {
+  if (!global._mongoClientPromise) {
+    client = new MongoClient(uri);
+    global._mongoClientPromise = client.connect();
+  }
+  clientPromise = global._mongoClientPromise!;
+} else {
+  client = new MongoClient(uri);
+  clientPromise = client.connect();
+}
+
+/* ======================
+   INIT DB + INDEX
+====================== */
 async function initDb(): Promise<Db> {
   const client = await clientPromise;
-  const dbName = process.env.MONGODB_DB || "jadwal_jumat";
   const db = client.db(dbName);
 
   /**
@@ -31,41 +51,31 @@ async function initDb(): Promise<Db> {
   const indexes = await col.indexes();
 
   const hasTTL = indexes.some(
-    (i) => i.key?.createdAt === 1 && typeof i.expireAfterSeconds === "number"
+    (i) =>
+      i.key?.createdAt === 1 &&
+      typeof i.expireAfterSeconds === "number"
   );
 
   if (!hasTTL) {
     await col.createIndex(
       { createdAt: 1 },
       {
-        expireAfterSeconds: 60 * 60 * 24 * 365 * 2, // 2 tahun
+        expireAfterSeconds: 60 * 60 * 24 * 365 * 2,
         name: "ttl_createdAt_2y",
       }
     );
-    console.log("✅ TTL index jadwal_history aktif (2 tahun)");
+    if (process.env.NODE_ENV !== "production") {
+      console.log("✅ TTL index jadwal_history aktif (2 tahun)");
+    }
   }
 
   return db;
 }
 
-// =======================
-// MongoClient Singleton
-// =======================
-if (process.env.NODE_ENV === "development") {
-  if (!global._mongoClientPromise) {
-    client = new MongoClient(uri);
-    global._mongoClientPromise = client.connect();
-  }
-  clientPromise = global._mongoClientPromise!;
-} else {
-  client = new MongoClient(uri);
-  clientPromise = client.connect();
-}
-
-// =======================
-// Export getDb()
-// =======================
-export async function getDb() {
+/* ======================
+   EXPORT getDb()
+====================== */
+export async function getDb(): Promise<Db> {
   if (!global._mongoDbPromise) {
     global._mongoDbPromise = initDb();
   }
