@@ -94,7 +94,7 @@ async function getJadwal(): Promise<JadwalView[]> {
    TIMING TV MASJID
 ================================ */
 const ANIM_IN = 4000;
-const HOLD = 20000;
+const HOLD = 176000;
 
 /* ===============================
    PAGE
