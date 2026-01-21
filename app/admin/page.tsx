@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 /* ===============================
    TYPE
@@ -164,7 +166,48 @@ export default function AdminPage() {
     return [...hist].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
   }, [hist]);
 
-  const printPage = () => window.print();
+  // ✅ PDF DOWNLOAD (mobile & desktop)
+  const downloadPdf = () => {
+    const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+    doc.setFontSize(14);
+    doc.text("Lembar Jadwal Jum'at", 14, 16);
+
+    doc.setFontSize(10);
+    doc.text(`Tahun ${year} • Total ${sortedHist.length} jadwal`, 14, 22);
+
+    const head = [["No", "Tanggal", "Imam", "Khotib"]];
+    const body = sortedHist.map((r, i) => [
+      String(i + 1),
+      formatTanggal(r.tanggal),
+      r.imam || "—",
+      r.khotib || "—",
+    ]);
+
+    autoTable(doc, {
+      head,
+      body,
+      startY: 28,
+      styles: { fontSize: 9, cellPadding: 2, valign: "top" },
+      headStyles: { fillColor: [226, 232, 240], textColor: 30 },
+      columnStyles: {
+        0: { cellWidth: 10, halign: "center" },
+        1: { cellWidth: 35 },
+        2: { cellWidth: 70 },
+        3: { cellWidth: 70 },
+      },
+      didDrawPage: () => {
+        const pageWidth = doc.internal.pageSize.getWidth();
+        const pageHeight = doc.internal.pageSize.getHeight();
+        const pageNumber = doc.getCurrentPageInfo().pageNumber;
+        doc.setFontSize(9);
+        doc.text(`Page ${pageNumber}`, pageWidth - 25, pageHeight - 8);
+      },
+    });
+
+    const filename = `jadwal-jumat-${year}.pdf`;
+    doc.save(filename);
+  };
 
   const startEdit = (row: JadwalHist) => {
     setMsg("");
@@ -254,18 +297,10 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-gradient-to-br from-emerald-200 to-teal-400">
       <div className="mx-auto max-w-6xl space-y-4 px-4 sm:px-6 lg:px-8 py-6">
-        <style>{`
-          @media print {
-            .no-print { display: none !important; }
-            .print-wrap { padding: 0 !important; }
-            table { font-size: 12px; }
-            th, td { padding: 6px !important; }
-            body { background: white !important; }
-          }
-        `}</style>
+        {/* ✅ CSS PRINT dihapus karena tombol print sudah dihapus */}
 
         {/* HEADER */}
-        <div className="flex items-center justify-between gap-2 no-print">
+        <div className="flex items-center justify-between gap-2">
           <div>
             <h1 className="text-xl font-bold">Kelola Jadwal Jum&apos;at</h1>
             <p className="text-sm text-slate-600">
@@ -283,13 +318,13 @@ hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
         </div>
 
         {msg && (
-          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm no-print">
+          <div className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm">
             {msg}
           </div>
         )}
 
         {/* FORM INPUT */}
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden no-print">
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-hidden">
             <table className="w-full border-collapse text-[10px] sm:text-sm table-auto">
               <thead>
@@ -368,9 +403,9 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
         </section>
 
         {/* HISTORY */}
-        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden print-wrap">
+        <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           {/* Header */}
-          <div className="flex flex-col gap-2 px-4 py-3 border-b sm:flex-row sm:items-center sm:justify-between no-print">
+          <div className="flex flex-col gap-2 px-4 py-3 border-b sm:flex-row sm:items-center sm:justify-between">
             <div>
               <div className="text-sm sm:text-base font-bold">
                 Lembar Jadwal Jum&apos;at
@@ -394,11 +429,11 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
               </select>
 
               <button
-                onClick={printPage}
+                onClick={downloadPdf}
                 className="rounded-xl bg-cyan-600 px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm font-semibold text-white
 hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
               >
-                Print
+                PDF
               </button>
             </div>
           </div>
@@ -522,7 +557,7 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                         </td>
 
                         {/* AKSI */}
-                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm no-print">
+                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm">
                           {isEditing ? (
                             <div className="flex flex-wrap gap-1 sm:flex-row sm:gap-2">
                               <button
