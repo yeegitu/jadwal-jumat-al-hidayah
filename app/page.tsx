@@ -206,38 +206,69 @@ export default function Page() {
               </div>
 
               {/* TABLE */}
-              <table className="w-full text-left">
+              <table className="w-full text-left table-fixed">
+                {/* Jumat | Tanggal | Imam | Khotib */}
+                <colgroup>
+                  <col className="w-[20%]" />
+                  <col className="w-[20%]" />
+                  <col className="w-[30%]" />
+                  <col className="w-[30%]" />
+                </colgroup>
+
                 <thead className="bg-slate-100">
                   <tr>
-                    {["Minggu", "Tanggal", "Imam", "Khotib"].map((h) => (
-                      <th key={h} className="p-4 text-slate-600">
+                    {["", "Tanggal", "Imam", "Khotib"].map((h, i) => (
+                      <th
+                        key={i}
+                        className="px-2 py-2 sm:px-3 md:px-6 md:py-4 text-slate-600 font-bold text-[10px] sm:text-xs md:text-base whitespace-nowrap"
+                      >
                         {h}
                       </th>
                     ))}
                   </tr>
                 </thead>
-                <tbody>
-                  <tr className="border-t">
-                    <td className="p-4 font-semibold">Jum&apos;at Ini</td>
-                    <td className="p-4">
+
+                <tbody className="text-slate-900">
+                  <tr className="border-t border-slate-200 align-top">
+                    {/* Kolom Jumat: pendek di mobile, full di desktop */}
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 font-extrabold text-[10px] sm:text-xs md:text-base overflow-hidden">
+                      <span className="md:hidden">Jumat Ini</span>
+                      <span className="hidden md:inline">Jum&apos;at Ini</span>
+                    </td>
+
+                    {/* Tanggal boleh turun baris */}
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 text-[10px] sm:text-xs md:text-base whitespace-normal leading-tight overflow-hidden">
                       {formatTanggal(thisRow?.tanggal ?? "")}
                     </td>
-                    <td className="p-4 font-semibold">
+
+                    {/* Imam 1 baris + ellipsis */}
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 font-semibold text-[10px] sm:text-xs md:text-base truncate">
                       {thisRow?.imam || "Belum ditentukan"}
                     </td>
-                    <td className="p-4 font-semibold">
+
+                    {/* Khotib 1 baris + ellipsis */}
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 font-semibold text-[10px] sm:text-xs md:text-base truncate">
                       {thisRow?.khotib || "Belum ditentukan"}
                     </td>
                   </tr>
-                  <tr className="border-t">
-                    <td className="p-4 font-semibold">Jum&apos;at Depan</td>
-                    <td className="p-4">
+
+                  <tr className="border-t border-slate-200 align-top">
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 font-extrabold text-[10px] sm:text-xs md:text-base overflow-hidden">
+                      <span className="md:hidden">Jumat Depan</span>
+                      <span className="hidden md:inline">
+                        Jum&apos;at Depan
+                      </span>
+                    </td>
+
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 text-[10px] sm:text-xs md:text-base whitespace-normal leading-tight overflow-hidden">
                       {formatTanggal(nextRow?.tanggal ?? "")}
                     </td>
-                    <td className="p-4 font-semibold">
+
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 font-semibold text-[10px] sm:text-xs md:text-base truncate">
                       {nextRow?.imam || "Belum ditentukan"}
                     </td>
-                    <td className="p-4 font-semibold">
+
+                    <td className="px-2 py-2 sm:px-3 md:px-6 md:py-4 font-semibold text-[10px] sm:text-xs md:text-base truncate">
                       {nextRow?.khotib || "Belum ditentukan"}
                     </td>
                   </tr>

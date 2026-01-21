@@ -290,14 +290,14 @@ hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
 
         {/* FORM INPUT */}
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden no-print">
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+          <div className="overflow-x-hidden">
+            <table className="w-full border-collapse text-[10px] sm:text-sm table-auto">
               <thead>
                 <tr className="bg-slate-200">
                   {["Tanggal", "Imam", "Khotib", "Aksi"].map((h) => (
                     <th
                       key={h}
-                      className="border-b px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-semibold uppercase text-slate-600"
+                      className="border-b px-1 py-1 sm:px-4 sm:py-3 text-left text-[10px] sm:text-xs font-semibold uppercase text-slate-600 whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -306,50 +306,56 @@ hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
               </thead>
               <tbody>
                 <tr>
-                  <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
+                  {/* TANGGAL */}
+                  <td className="border-b px-1 py-1 sm:px-4 sm:py-4 whitespace-nowrap">
                     <input
                       type="date"
                       value={form.tanggal}
                       onChange={(e) => {
                         const v = e.target.value;
-
-                        // ✅ validasi realtime: kalau bukan Jumat, jangan simpan ke state
                         if (v && !isFridayYYYYMMDD(v)) {
                           setMsg("Tanggal harus hari Jum'at");
                           return;
                         }
-
                         setMsg("");
                         setForm({ ...form, tanggal: v });
                       }}
-                      className="w-full rounded-xl border px-3 py-2 text-xs sm:text-sm"
+                      className="w-full rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm"
                     />
                   </td>
-                  <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
+
+                  {/* IMAM */}
+                  <td className="border-b px-1 py-1 sm:px-4 sm:py-4 break-words max-w-[90px] sm:max-w-[150px]">
                     <input
                       value={form.imam}
                       onChange={(e) =>
                         setForm({ ...form, imam: e.target.value })
                       }
                       placeholder="Nama Imam"
-                      className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
+                      className="w-full rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm break-words placeholder:text-slate-400"
+                      style={{ wordBreak: "break-word" }}
                     />
                   </td>
-                  <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
+
+                  {/* KHOTIB */}
+                  <td className="border-b px-1 py-1 sm:px-4 sm:py-4 break-words max-w-[90px] sm:max-w-[150px]">
                     <input
                       value={form.khotib}
                       onChange={(e) =>
                         setForm({ ...form, khotib: e.target.value })
                       }
                       placeholder="Nama Khotib"
-                      className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
+                      className="w-full rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm break-words placeholder:text-slate-400"
+                      style={{ wordBreak: "break-word" }}
                     />
                   </td>
-                  <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
+
+                  {/* AKSI */}
+                  <td className="border-b px-1 py-1 sm:px-4 sm:py-4">
                     <button
                       onClick={save}
                       disabled={saving}
-                      className="rounded-xl bg-emerald-600 px-4 py-2 text-xs sm:text-sm font-semibold text-white
+                      className="rounded-xl bg-emerald-600 px-2 py-1 text-[10px] sm:px-4 sm:py-2 sm:text-sm font-semibold text-white
 hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {saving ? "Menyimpan..." : "Simpan"}
@@ -363,12 +369,13 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
 
         {/* HISTORY */}
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden print-wrap">
-          <div className="flex flex-col gap-3 px-4 py-4 border-b sm:flex-row sm:items-center sm:justify-between no-print">
+          {/* Header */}
+          <div className="flex flex-col gap-2 px-4 py-3 border-b sm:flex-row sm:items-center sm:justify-between no-print">
             <div>
-              <div className="text-base font-bold">
+              <div className="text-sm sm:text-base font-bold">
                 Lembar Jadwal Jum&apos;at
               </div>
-              <div className="text-xs text-slate-500">
+              <div className="text-[10px] sm:text-xs text-slate-500">
                 Tahun {year} • Total {sortedHist.length} jadwal
               </div>
             </div>
@@ -377,7 +384,7 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
               <select
                 value={year}
                 onChange={(e) => setYear(Number(e.target.value))}
-                className="rounded-xl border px-3 py-2 text-sm"
+                className="rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm"
               >
                 {yearOptions.map((y) => (
                   <option key={y} value={y}>
@@ -388,7 +395,7 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
 
               <button
                 onClick={printPage}
-                className="rounded-xl bg-cyan-600 px-3 py-2 text-sm font-semibold text-white
+                className="rounded-xl bg-cyan-600 px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm font-semibold text-white
 hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
               >
                 Print
@@ -396,14 +403,15 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
             </div>
           </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
+          {/* Table */}
+          <div className="overflow-x-hidden">
+            <table className="w-full border-collapse text-[10px] sm:text-sm table-auto">
               <thead>
                 <tr className="bg-slate-200">
                   {["No", "Tanggal", "Imam", "Khotib", "Aksi"].map((h) => (
                     <th
                       key={h}
-                      className="border-b px-2 py-2 sm:px-4 sm:py-3 text-left text-xs font-semibold uppercase text-slate-600"
+                      className="border-b px-1 py-1 sm:px-4 sm:py-2 text-[10px] sm:text-xs font-semibold uppercase text-slate-600 whitespace-nowrap"
                     >
                       {h}
                     </th>
@@ -416,7 +424,7 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-4 py-6 text-sm text-slate-500"
+                      className="px-1 py-2 sm:px-4 sm:py-6 text-[10px] sm:text-sm text-slate-500"
                     >
                       Memuat...
                     </td>
@@ -425,7 +433,7 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                   <tr>
                     <td
                       colSpan={5}
-                      className="px-4 py-6 text-sm text-slate-500"
+                      className="px-1 py-2 sm:px-4 sm:py-6 text-[10px] sm:text-sm text-slate-500"
                     >
                       Belum ada data.
                     </td>
@@ -435,30 +443,28 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                     const isEditing = editKey === r.tanggal;
 
                     return (
-                      <tr key={r.tanggal}>
-                        <td className="border-b px-2 py-2 text-xs sm:text-sm">
+                      <tr key={r.tanggal} className="align-top">
+                        {/* NO */}
+                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm text-center whitespace-nowrap">
                           {i + 1}
                         </td>
 
                         {/* TANGGAL */}
-                        <td className="border-b px-2 py-2 text-xs sm:text-sm">
+                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm whitespace-nowrap text-center">
                           {isEditing ? (
                             <input
                               type="date"
                               value={editForm.tanggal}
                               onChange={(e) => {
                                 const v = e.target.value;
-
-                                // ✅ validasi realtime: kalau bukan Jumat, jangan simpan ke state
                                 if (v && !isFridayYYYYMMDD(v)) {
                                   setMsg("Tanggal harus hari Jum'at");
                                   return;
                                 }
-
                                 setMsg("");
                                 setEditForm({ ...editForm, tanggal: v });
                               }}
-                              className="w-full rounded-xl border px-3 py-2 text-xs sm:text-sm"
+                              className="w-full rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm"
                             />
                           ) : (
                             formatTanggal(r.tanggal)
@@ -466,7 +472,7 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                         </td>
 
                         {/* IMAM */}
-                        <td className="border-b px-2 py-2 text-xs sm:text-sm">
+                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm break-words max-w-[90px] sm:max-w-[150px]">
                           {isEditing ? (
                             <input
                               value={editForm.imam}
@@ -477,15 +483,21 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                                 })
                               }
                               placeholder="Nama Imam"
-                              className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
+                              className="w-full rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm break-words"
+                              style={{ wordBreak: "break-word" }}
                             />
                           ) : (
-                            r.imam || "—"
+                            <span
+                              className="truncate sm:whitespace-normal"
+                              title={r.imam}
+                            >
+                              {r.imam || "—"}
+                            </span>
                           )}
                         </td>
 
                         {/* KHOTIB */}
-                        <td className="border-b px-2 py-2 text-xs sm:text-sm">
+                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm break-words max-w-[90px] sm:max-w-[150px]">
                           {isEditing ? (
                             <input
                               value={editForm.khotib}
@@ -496,21 +508,27 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                                 })
                               }
                               placeholder="Nama Khotib"
-                              className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
+                              className="w-full rounded-xl border px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-sm break-words"
+                              style={{ wordBreak: "break-word" }}
                             />
                           ) : (
-                            r.khotib || "—"
+                            <span
+                              className="truncate sm:whitespace-normal"
+                              title={r.khotib}
+                            >
+                              {r.khotib || "—"}
+                            </span>
                           )}
                         </td>
 
                         {/* AKSI */}
-                        <td className="border-b px-2 py-2 text-xs sm:text-sm no-print">
+                        <td className="border-b px-1 py-1 sm:px-2 sm:py-2 text-[10px] sm:text-sm no-print">
                           {isEditing ? (
-                            <div className="flex flex-col gap-2 sm:flex-row">
+                            <div className="flex flex-wrap gap-1 sm:flex-row sm:gap-2">
                               <button
                                 onClick={submitEdit}
                                 disabled={updating}
-                                className="rounded-xl bg-emerald-600 px-3 py-2 text-xs font-semibold text-white
+                                className="rounded-xl bg-emerald-600 px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-xs font-semibold text-white
 hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 {updating ? "Menyimpan..." : "Simpan"}
@@ -518,17 +536,17 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
                               <button
                                 onClick={cancelEdit}
                                 disabled={updating}
-                                className="rounded-xl bg-slate-600 px-3 py-2 text-xs font-semibold text-white
+                                className="rounded-xl bg-slate-600 px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-xs font-semibold text-white
 hover:bg-slate-700 active:scale-95 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 Batal
                               </button>
                             </div>
                           ) : (
-                            <div className="flex flex-col gap-2 sm:flex-row">
+                            <div className="flex flex-wrap gap-1 sm:flex-row sm:gap-2">
                               <button
                                 onClick={() => startEdit(r)}
-                                className="rounded-xl bg-teal-500 px-3 py-2 text-xs font-semibold text-white
+                                className="rounded-xl bg-teal-500 px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-xs font-semibold text-white
 hover:bg-teal-600 active:scale-95 transition-all shadow-sm"
                               >
                                 Edit
@@ -536,7 +554,7 @@ hover:bg-teal-600 active:scale-95 transition-all shadow-sm"
                               <button
                                 onClick={() => removeRow(r.tanggal)}
                                 disabled={deletingKey === r.tanggal}
-                                className="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white
+                                className="rounded-xl bg-red-500 px-2 py-1 text-[10px] sm:px-3 sm:py-2 sm:text-xs font-semibold text-white
 hover:bg-red-600 active:scale-95 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
                                 {deletingKey === r.tanggal
