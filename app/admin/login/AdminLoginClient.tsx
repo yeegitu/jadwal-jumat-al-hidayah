@@ -41,7 +41,42 @@ export default function AdminLoginClient() {
 
   return (
     <main className="min-h-dvh bg-slate-100 flex items-center justify-center p-6">
-      {/* UI LOGIN */}
+      <form
+        onSubmit={onSubmit}
+        className="w-full max-w-sm bg-white rounded-xl shadow-xl p-8"
+      >
+        <h1 className="text-2xl font-bold text-center mb-6">Admin Login</h1>
+
+        {err && (
+          <div className="mb-4 text-sm text-red-600 text-center">{err}</div>
+        )}
+
+        <input
+          type="text"
+          placeholder="Username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="w-full border rounded px-4 py-3 mb-3"
+          required
+        />
+
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border rounded px-4 py-3 mb-5"
+          required
+        />
+
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full bg-cyan-600 text-white py-3 rounded hover:bg-cyan-700 disabled:opacity-50"
+        >
+          {loading ? "Masuk..." : "Login"}
+        </button>
+      </form>
     </main>
   );
 }
