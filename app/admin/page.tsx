@@ -232,7 +232,7 @@ export default function AdminPage() {
 
     const res = await fetch(
       `/api/jadwal-history?tanggal=${encodeURIComponent(tanggal)}`,
-      { method: "DELETE" }
+      { method: "DELETE" },
     );
 
     const json = await readJsonSafe(res);
@@ -265,7 +265,7 @@ export default function AdminPage() {
         `}</style>
 
         {/* HEADER */}
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between no-print">
+        <div className="flex items-center justify-between gap-2 no-print">
           <div>
             <h1 className="text-xl font-bold">Kelola Jadwal Jum&apos;at</h1>
             <p className="text-sm text-slate-600">
@@ -275,7 +275,7 @@ export default function AdminPage() {
 
           <button
             onClick={logout}
-            className="rounded-xl bg-slate-700 px-3 py-2 text-sm font-semibold text-white
+            className="rounded-lg bg-slate-700 px-2 py-1.5 text-xs sm:text-sm font-semibold text-white
 hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
           >
             Logout
@@ -328,9 +328,11 @@ hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
                   <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
                     <input
                       value={form.imam}
-                      onChange={(e) => setForm({ ...form, imam: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, imam: e.target.value })
+                      }
                       placeholder="Nama Imam"
-                      className="w-full rounded-xl border px-3 py-2 text-xs sm:text-sm"
+                      className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
                     />
                   </td>
                   <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
@@ -340,7 +342,7 @@ hover:bg-slate-800 active:scale-95 transition-all shadow-sm"
                         setForm({ ...form, khotib: e.target.value })
                       }
                       placeholder="Nama Khotib"
-                      className="w-full rounded-xl border px-3 py-2 text-xs sm:text-sm"
+                      className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
                     />
                   </td>
                   <td className="border-b px-2 py-2 sm:px-4 sm:py-4">
@@ -363,7 +365,9 @@ hover:bg-emerald-700 active:scale-95 transition-all shadow-sm disabled:opacity-6
         <section className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden print-wrap">
           <div className="flex flex-col gap-3 px-4 py-4 border-b sm:flex-row sm:items-center sm:justify-between no-print">
             <div>
-              <div className="text-base font-bold">Lembar Jadwal Jum&apos;at</div>
+              <div className="text-base font-bold">
+                Lembar Jadwal Jum&apos;at
+              </div>
               <div className="text-xs text-slate-500">
                 Tahun {year} • Total {sortedHist.length} jadwal
               </div>
@@ -410,13 +414,19 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
               <tbody>
                 {loadingHist ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-6 text-sm text-slate-500">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-6 text-sm text-slate-500"
+                    >
                       Memuat...
                     </td>
                   </tr>
                 ) : sortedHist.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="px-4 py-6 text-sm text-slate-500">
+                    <td
+                      colSpan={5}
+                      className="px-4 py-6 text-sm text-slate-500"
+                    >
                       Belum ada data.
                     </td>
                   </tr>
@@ -461,10 +471,13 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                             <input
                               value={editForm.imam}
                               onChange={(e) =>
-                                setEditForm({ ...editForm, imam: e.target.value })
+                                setEditForm({
+                                  ...editForm,
+                                  imam: e.target.value,
+                                })
                               }
                               placeholder="Nama Imam"
-                              className="w-full rounded-xl border px-3 py-2 text-xs sm:text-sm"
+                              className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
                             />
                           ) : (
                             r.imam || "—"
@@ -483,7 +496,7 @@ hover:bg-cyan-700 active:scale-95 transition-all shadow-sm"
                                 })
                               }
                               placeholder="Nama Khotib"
-                              className="w-full rounded-xl border px-3 py-2 text-xs sm:text-sm"
+                              className="w-full rounded-xl border px-3 py-2 text-sm sm:text-base text-slate-900 placeholder:text-slate-400"
                             />
                           ) : (
                             r.khotib || "—"
@@ -526,7 +539,9 @@ hover:bg-teal-600 active:scale-95 transition-all shadow-sm"
                                 className="rounded-xl bg-red-500 px-3 py-2 text-xs font-semibold text-white
 hover:bg-red-600 active:scale-95 transition-all shadow-sm disabled:opacity-60 disabled:cursor-not-allowed"
                               >
-                                {deletingKey === r.tanggal ? "Menghapus..." : "Hapus"}
+                                {deletingKey === r.tanggal
+                                  ? "Menghapus..."
+                                  : "Hapus"}
                               </button>
                             </div>
                           )}
