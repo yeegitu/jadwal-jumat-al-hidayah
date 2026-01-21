@@ -4,31 +4,33 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // hanya jaga admin & api jadwal
+  // ✅ BIARKAN LOGIN & PUBLIC
   if (
-    !pathname.startsWith("/admin") &&
-    !pathname.startsWith("/api/jadwal")
+    pathname === "/admin/login" ||
+    pathname.startsWith("/_next") ||
+    pathname.startsWith("/favicon") ||
+    pathname.startsWith("/api/auth")
   ) {
     return NextResponse.next();
   }
 
   const token = req.cookies.get("admin_token")?.value;
 
-  // belum login
-  if (!token) {
-    if (pathname.startsWith("/admin")) {
-      const url = req.nextUrl.clone();
-      url.pathname = "/admin/login";
-      return NextResponse.redirect(url);
-    }
+  // 🔒 PROTEKSI HANYA ADMIN
+  if (pathname.startsWith("/admin") && !token) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/admin/login";
+    return NextResponse.redirect(url);
+  }
 
+  // 🔒 API jadwal tetap aman
+  if (pathname.startsWith("/api/jadwal") && !token) {
     return NextResponse.json(
       { ok: false, message: "Unauthorized" },
       { status: 401 }
     );
   }
 
-  // JANGAN VERIFY JWT DI SINI
   return NextResponse.next();
 }
 
