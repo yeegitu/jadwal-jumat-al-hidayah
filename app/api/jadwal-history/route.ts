@@ -19,6 +19,7 @@ type JadwalHistDoc = {
 };
 
 type JadwalId = "this" | "next";
+
 type JadwalDoc = {
   id: JadwalId;
   label: "Jumat Ini" | "Jumat Depan";
@@ -34,7 +35,8 @@ type JadwalDoc = {
 function jsonBad(message: string, status = 400) {
   return NextResponse.json({ ok: false, message }, { status });
 }
-function jsonOk(data?: any) {
+
+function jsonOk(data?: unknown) {
   return NextResponse.json({ ok: true, data });
 }
 
@@ -106,7 +108,7 @@ export async function GET(req: NextRequest) {
   const year = Number(new URL(req.url).searchParams.get("year"));
   if (!year) return jsonBad("year wajib");
 
-  const db = await getDb();
+  const db = (await getDb()) as Db;
   await cleanupOldYears(db);
 
   const { currentYear, minKeepYear } = getKeepWindow();
@@ -138,7 +140,7 @@ export async function POST(req: NextRequest) {
   if (!isFridayYYYYMMDD(tanggal))
     return jsonBad("Tanggal harus hari Jum'at");
 
-  const db = await getDb();
+  const db = (await getDb()) as Db;
   await cleanupOldYears(db);
 
   const col = db.collection<JadwalHistDoc>("jadwal_history");
@@ -174,7 +176,7 @@ export async function PATCH(req: NextRequest) {
   if (!isFridayYYYYMMDD(tanggal))
     return jsonBad("Tanggal harus hari Jum'at");
 
-  const db = await getDb();
+  const db = (await getDb()) as Db;
   await cleanupOldYears(db);
 
   const col = db.collection<JadwalHistDoc>("jadwal_history");
@@ -208,7 +210,7 @@ export async function DELETE(req: NextRequest) {
   if (!tanggal) return jsonBad("tanggal wajib");
   if (!isIsoDateYYYYMMDD(tanggal)) return jsonBad("Tanggal tidak valid");
 
-  const db = await getDb();
+  const db = (await getDb()) as Db;
   await cleanupOldYears(db);
 
   const res = await db
